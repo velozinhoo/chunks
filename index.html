@@ -34,21 +34,100 @@
   /* ── HEADER ── */
   header {
     width: 100%;
-    padding: 28px 40px;
+    padding: 22px 40px;
     display: flex;
     align-items: center;
     gap: 14px;
     border-bottom: 1px solid var(--border);
   }
-  .logo-icon {
-    width: 38px; height: 38px;
-    background: var(--accent);
-    border-radius: 8px;
-    display: grid; place-items: center;
+  /* logo wrapper — click to edit */
+  .logo-area {
+    display: flex; align-items: center; gap: 12px;
+    cursor: pointer; position: relative;
+    padding: 6px 10px; border-radius: 10px;
+    transition: background .15s;
   }
-  .logo-icon svg { width: 22px; height: 22px; }
-  header h1 { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.5px; }
-  header span { color: var(--muted); font-size: 0.85rem; font-family: 'Space Mono', monospace; margin-left: auto; }
+  .logo-area:hover { background: var(--surface2); }
+  .logo-area:hover .edit-hint { opacity: 1; }
+  .edit-hint {
+    position: absolute; top: -22px; left: 50%; transform: translateX(-50%);
+    font-size: .6rem; font-family: 'Space Mono', monospace;
+    color: var(--muted); white-space: nowrap; opacity: 0; transition: opacity .15s;
+    pointer-events: none;
+  }
+  .logo-img-wrap {
+    width: 42px; height: 42px; border-radius: 10px;
+    background: var(--accent);
+    display: grid; place-items: center; overflow: hidden; flex-shrink: 0;
+  }
+  .logo-img-wrap img { width: 100%; height: 100%; object-fit: cover; }
+  .logo-img-wrap svg { width: 24px; height: 24px; }
+  #header-title { font-size: 1.55rem; font-weight: 800; letter-spacing: -0.5px; }
+  header .header-right { color: var(--muted); font-size: 0.9rem; font-family: 'Space Mono', monospace; margin-left: auto; }
+
+  /* ── LOGO EDITOR MODAL ── */
+  #logo-modal {
+    display: none; position: fixed; inset: 0; z-index: 100;
+    background: rgba(0,0,0,.7); backdrop-filter: blur(4px);
+    align-items: center; justify-content: center;
+  }
+  #logo-modal.open { display: flex; }
+  .modal-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 32px;
+    width: 340px;
+    display: flex; flex-direction: column; gap: 20px;
+  }
+  .modal-box h2 { font-size: 1.1rem; font-weight: 800; }
+  .modal-box p { font-size: .8rem; color: var(--muted); margin-top: -12px; line-height: 1.5; }
+  .modal-field { display: flex; flex-direction: column; gap: 6px; }
+  .modal-field label {
+    font-size: .72rem; font-family: 'Space Mono', monospace;
+    color: var(--muted); text-transform: uppercase; letter-spacing: 1px;
+  }
+  #logo-name-input {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: var(--radius); color: var(--text);
+    font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700;
+    padding: 10px 14px; outline: none; width: 100%;
+    transition: border-color .2s;
+  }
+  #logo-name-input:focus { border-color: var(--accent); }
+  .logo-upload-zone {
+    border: 2px dashed var(--border); border-radius: var(--radius);
+    padding: 22px 16px; text-align: center; cursor: pointer;
+    transition: border-color .2s, background .2s; position: relative;
+  }
+  .logo-upload-zone:hover { border-color: var(--accent); background: rgba(200,240,60,.04); }
+  .logo-upload-zone p { font-size: .82rem; color: var(--muted); }
+  .logo-upload-zone strong { color: var(--text); }
+  #logo-preview {
+    display: none; width: 64px; height: 64px; border-radius: 12px;
+    object-fit: cover; margin: 0 auto 10px; border: 2px solid var(--border);
+  }
+  #logo-file-input { display: none; }
+  .modal-btns { display: flex; gap: 10px; }
+  .btn-save {
+    flex: 1; padding: 11px; background: var(--accent); color: #0d0d0f;
+    border: none; border-radius: var(--radius); font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: .95rem; cursor: pointer; transition: opacity .2s;
+  }
+  .btn-save:hover { opacity: .85; }
+  .btn-cancel {
+    padding: 11px 18px; background: var(--surface2); color: var(--muted);
+    border: 1px solid var(--border); border-radius: var(--radius);
+    font-family: 'Syne', sans-serif; font-weight: 600; font-size: .9rem;
+    cursor: pointer; transition: border-color .2s;
+  }
+  .btn-cancel:hover { border-color: var(--text); color: var(--text); }
+  .btn-reset-logo {
+    width: 100%; padding: 8px; background: none; border: 1px dashed var(--border);
+    border-radius: var(--radius); color: var(--muted); font-size: .75rem;
+    font-family: 'Space Mono', monospace; cursor: pointer; transition: border-color .2s;
+  }
+  .btn-reset-logo:hover { border-color: var(--danger); color: var(--danger); }
 
   /* ── MAIN GRID ── */
   main {
@@ -69,7 +148,7 @@
     padding: 28px;
   }
   .card-title {
-    font-size: 0.72rem;
+    font-size: 0.82rem;
     font-family: 'Space Mono', monospace;
     color: var(--muted);
     letter-spacing: 2px;
@@ -92,9 +171,9 @@
     background: rgba(200,240,60,.04);
   }
   #drop-zone svg { margin-bottom: 10px; opacity: .5; }
-  #drop-zone p { font-size: .9rem; color: var(--muted); line-height: 1.5; }
+  #drop-zone p { font-size: 1rem; color: var(--muted); line-height: 1.5; }
   #drop-zone p strong { color: var(--text); }
-  #drop-zone small { font-family: 'Space Mono', monospace; font-size: .7rem; color: var(--muted); }
+  #drop-zone small { font-family: 'Space Mono', monospace; font-size: .8rem; color: var(--muted); }
   #file-input { display: none; }
 
   /* file selected state */
@@ -113,8 +192,8 @@
     background: rgba(200,240,60,.12);
     display: grid; place-items: center; flex-shrink: 0;
   }
-  #file-info .fi-name { font-size: .85rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  #file-info .fi-meta { font-family: 'Space Mono', monospace; font-size: .7rem; color: var(--muted); margin-top: 2px; }
+  #file-info .fi-name { font-size: .98rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #file-info .fi-meta { font-family: 'Space Mono', monospace; font-size: .78rem; color: var(--muted); margin-top: 2px; }
   #file-info .fi-clear {
     margin-left: auto; background: none; border: none; color: var(--muted);
     cursor: pointer; padding: 4px; border-radius: 4px; flex-shrink: 0;
@@ -126,7 +205,7 @@
   .field-group { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
   .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
   .field label {
-    font-size: .72rem;
+    font-size: .82rem;
     font-family: 'Space Mono', monospace;
     color: var(--muted);
     letter-spacing: 1px;
@@ -134,12 +213,12 @@
     display: flex; align-items: center; gap: 6px;
   }
   .field label .tip {
-    width: 15px; height: 15px;
+    width: 16px; height: 16px;
     background: var(--surface2);
     border: 1px solid var(--border);
     border-radius: 50%;
     display: grid; place-items: center;
-    font-size: .65rem; color: var(--muted);
+    font-size: .72rem; color: var(--muted);
     cursor: help; position: relative;
   }
   .field label .tip:hover::after {
@@ -149,7 +228,7 @@
     left: 50%; transform: translateX(-50%);
     background: #2a2a35;
     color: var(--text);
-    font-size: .7rem;
+    font-size: .78rem;
     padding: 6px 10px;
     border-radius: 6px;
     white-space: nowrap;
@@ -167,8 +246,8 @@
     border-radius: var(--radius);
     color: var(--text);
     font-family: 'Space Mono', monospace;
-    font-size: .85rem;
-    padding: 10px 14px;
+    font-size: .95rem;
+    padding: 11px 14px;
     outline: none;
     transition: border-color .2s;
     width: 100%;
@@ -181,7 +260,7 @@
   .checks { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
   .check-row {
     display: flex; align-items: center; gap: 10px;
-    cursor: pointer; font-size: .88rem;
+    cursor: pointer; font-size: 1rem;
   }
   .check-row input[type="checkbox"] { display: none; }
   .check-box {
@@ -208,14 +287,14 @@
   /* ── PROCESS BUTTON ── */
   #btn-process {
     width: 100%;
-    padding: 14px;
+    padding: 15px;
     background: var(--accent);
     color: #0d0d0f;
     border: none;
     border-radius: var(--radius);
     font-family: 'Syne', sans-serif;
     font-weight: 800;
-    font-size: 1rem;
+    font-size: 1.1rem;
     letter-spacing: .5px;
     cursor: pointer;
     transition: opacity .2s, transform .1s;
@@ -228,7 +307,7 @@
   .hint {
     margin-top: 14px;
     font-family: 'Space Mono', monospace;
-    font-size: .68rem;
+    font-size: .76rem;
     color: var(--muted);
     line-height: 1.6;
   }
@@ -236,7 +315,7 @@
 
   /* ── PROGRESS ── */
   #progress-wrap { display: none; margin-top: 16px; }
-  #progress-label { font-size: .75rem; font-family: 'Space Mono', monospace; color: var(--muted); margin-bottom: 6px; }
+  #progress-label { font-size: .82rem; font-family: 'Space Mono', monospace; color: var(--muted); margin-bottom: 6px; }
   #progress-bar-bg { background: var(--surface2); border-radius: 99px; height: 6px; overflow: hidden; }
   #progress-bar { height: 100%; background: var(--accent); border-radius: 99px; width: 0; transition: width .2s; }
 
@@ -246,7 +325,7 @@
   }
   #chunk-count {
     font-family: 'Space Mono', monospace;
-    font-size: .72rem;
+    font-size: .8rem;
     color: var(--muted);
     background: var(--surface2);
     border: 1px solid var(--border);
@@ -256,14 +335,14 @@
 
   #btn-dl-all {
     display: none;
-    padding: 8px 16px;
+    padding: 9px 18px;
     background: var(--accent2);
     color: #0d0d0f;
     border: none;
     border-radius: 8px;
     font-family: 'Syne', sans-serif;
     font-weight: 700;
-    font-size: .82rem;
+    font-size: .9rem;
     cursor: pointer;
     transition: opacity .2s;
   }
@@ -285,14 +364,14 @@
   }
   .chunk-num {
     font-family: 'Space Mono', monospace;
-    font-size: .7rem;
+    font-size: .78rem;
     color: var(--muted);
     min-width: 28px;
     text-align: right;
   }
   .chunk-info { flex: 1; min-width: 0; }
-  .chunk-name { font-size: .82rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .chunk-time { font-family: 'Space Mono', monospace; font-size: .68rem; color: var(--muted); margin-top: 2px; }
+  .chunk-name { font-size: .92rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .chunk-time { font-family: 'Space Mono', monospace; font-size: .76rem; color: var(--muted); margin-top: 2px; }
 
   .chunk-play {
     background: var(--surface);
@@ -329,7 +408,7 @@
     color: var(--muted);
   }
   #empty-state svg { opacity: .2; margin-bottom: 14px; }
-  #empty-state p { font-size: .85rem; line-height: 1.6; }
+  #empty-state p { font-size: .95rem; line-height: 1.6; }
 
   /* ── SCROLLBAR ── */
   ::-webkit-scrollbar { width: 6px; }
@@ -340,14 +419,46 @@
 <body>
 
 <header>
-  <div class="logo-icon">
-    <svg viewBox="0 0 24 24" fill="none" stroke="#0d0d0f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
-    </svg>
+  <div class="logo-area" id="logo-area" title="Clique para editar logo e nome">
+    <span class="edit-hint">✏️ clique para editar</span>
+    <div class="logo-img-wrap" id="logo-img-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#0d0d0f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+      </svg>
+    </div>
+    <h1 id="header-title">AudioSplit</h1>
   </div>
-  <h1>AudioSplit</h1>
-  <span>v1.0 · 100% local</span>
+  <span class="header-right">v1.0 · 100% local</span>
 </header>
+
+<!-- ── LOGO EDITOR MODAL ── -->
+<div id="logo-modal">
+  <div class="modal-box">
+    <h2>Personalizar cabeçalho</h2>
+    <p>Altere o nome e/ou a logo exibidos no topo do site.</p>
+
+    <div class="modal-field">
+      <label>Nome do site</label>
+      <input type="text" id="logo-name-input" value="AudioSplit" maxlength="32" placeholder="Seu nome aqui" />
+    </div>
+
+    <div class="modal-field">
+      <label>Logo (imagem)</label>
+      <div class="logo-upload-zone" id="logo-upload-zone" onclick="document.getElementById('logo-file-input').click()">
+        <img id="logo-preview" src="" alt="preview" />
+        <p><strong>Clique para escolher</strong><br>PNG, JPG, SVG — recomendado 1:1</p>
+      </div>
+      <input type="file" id="logo-file-input" accept="image/*" />
+    </div>
+
+    <button class="btn-reset-logo" id="btn-reset-logo">↺ Restaurar logo padrão</button>
+
+    <div class="modal-btns">
+      <button class="btn-cancel" id="btn-modal-cancel">Cancelar</button>
+      <button class="btn-save" id="btn-modal-save">Salvar</button>
+    </div>
+  </div>
+</div>
 
 <main>
   <!-- ── LEFT: INPUTS ── -->
@@ -788,6 +899,78 @@ function formatTime(s) {
   const ss = (s % 60).toFixed(1).padStart(4, '0');
   return `${String(m).padStart(2,'0')}:${ss}`;
 }
+
+// ── Logo / Name Editor ──
+const logoArea      = document.getElementById('logo-area');
+const logoModal     = document.getElementById('logo-modal');
+const logoNameInput = document.getElementById('logo-name-input');
+const logoFileInput = document.getElementById('logo-file-input');
+const logoPreview   = document.getElementById('logo-preview');
+const logoImgWrap   = document.getElementById('logo-img-wrap');
+const headerTitle   = document.getElementById('header-title');
+const btnModalSave  = document.getElementById('btn-modal-save');
+const btnModalCancel= document.getElementById('btn-modal-cancel');
+const btnResetLogo  = document.getElementById('btn-reset-logo');
+
+let pendingLogoDataUrl = null; // holds new image while modal is open
+let savedLogoDataUrl   = null; // the actually saved image
+
+const defaultLogoSVG = `<svg viewBox="0 0 24 24" fill="none" stroke="#0d0d0f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>`;
+
+logoArea.addEventListener('click', () => {
+  logoNameInput.value = headerTitle.textContent;
+  pendingLogoDataUrl = savedLogoDataUrl;
+  if (savedLogoDataUrl) {
+    logoPreview.src = savedLogoDataUrl;
+    logoPreview.style.display = 'block';
+  } else {
+    logoPreview.style.display = 'none';
+  }
+  logoModal.classList.add('open');
+});
+
+logoFileInput.addEventListener('change', () => {
+  const file = logoFileInput.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    pendingLogoDataUrl = e.target.result;
+    logoPreview.src = pendingLogoDataUrl;
+    logoPreview.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+});
+
+btnResetLogo.addEventListener('click', () => {
+  pendingLogoDataUrl = null;
+  logoPreview.style.display = 'none';
+  logoPreview.src = '';
+  logoFileInput.value = '';
+});
+
+btnModalSave.addEventListener('click', () => {
+  const newName = logoNameInput.value.trim() || 'AudioSplit';
+  headerTitle.textContent = newName;
+  document.title = newName + ' — Cortador de MP3';
+  savedLogoDataUrl = pendingLogoDataUrl;
+  if (savedLogoDataUrl) {
+    logoImgWrap.innerHTML = `<img src="${savedLogoDataUrl}" alt="logo" />`;
+    logoImgWrap.style.background = 'transparent';
+  } else {
+    logoImgWrap.innerHTML = defaultLogoSVG;
+    logoImgWrap.style.background = 'var(--accent)';
+  }
+  logoModal.classList.remove('open');
+});
+
+btnModalCancel.addEventListener('click', () => {
+  pendingLogoDataUrl = savedLogoDataUrl;
+  logoModal.classList.remove('open');
+});
+
+logoModal.addEventListener('click', e => {
+  if (e.target === logoModal) logoModal.classList.remove('open');
+});
 </script>
 </body>
 </html>
