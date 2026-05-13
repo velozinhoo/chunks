@@ -3,20 +3,61 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<!-- ============================================================
+  ✏️  CONFIGURAÇÕES DO SITE — edite apenas aqui
+  ============================================================
+
+  NOME DO SITE:
+    Altere o texto entre as aspas em SITE_NAME abaixo.
+    Aparece no header e na aba do navegador.
+
+  LOGO:
+    Deixe LOGO_URL = '' para usar o ícone padrão (símbolo de música).
+    Para usar uma imagem própria, coloque o link aqui.
+    Exemplos:
+      'https://meusite.com/logo.png'   ← imagem online
+      'logo.png'                       ← arquivo na mesma pasta no GitHub/Neocities
+
+  COR DE FUNDO DA PÁGINA:
+    Altere --bg em :root no CSS abaixo.
+    Exemplos de cores escuras:
+      #0d0d0f  → preto (padrão)
+      #0f172a  → azul-marinho
+      #1a0a2e  → roxo escuro
+      #0f2027  → verde-petróleo escuro
+
+  COR DOS CARDS (painéis):
+    Altere --surface em :root.
+
+  COR DE DESTAQUE (botão Processar, bordas ativas):
+    Altere --accent em :root.
+    Exemplos:
+      #c8f03c  → verde-limão (padrão)
+      #ff6b6b  → vermelho coral
+      #60a5fa  → azul claro
+      #f59e0b  → amarelo âmbar
+
+  ============================================================ -->
+<script>
+  const SITE_NAME = 'AudioSplit';   // ← nome do site
+  const LOGO_URL  = '';             // ← URL da logo (ou '' para ícone padrão)
+</script>
+
 <title>AudioSplit — Cortador de MP3</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet" />
 <style>
   :root {
-    --bg: #0d0d0f;
-    --surface: #141418;
-    --surface2: #1c1c22;
-    --border: #2a2a35;
-    --accent: #c8f03c;
-    --accent2: #3cf0b4;
-    --text: #e8e8ec;
-    --muted: #6b6b7e;
-    --danger: #f03c3c;
-    --radius: 10px;
+    --bg:      #0d0d0f;   /* ← COR DE FUNDO DA PÁGINA   */
+    --surface: #141418;   /* ← COR DE FUNDO DOS CARDS   */
+    --surface2:#1c1c22;   /* fundo dos inputs/itens      */
+    --border:  #2a2a35;   /* bordas                      */
+    --accent:  #c8f03c;   /* ← COR DE DESTAQUE          */
+    --accent2: #3cf0b4;   /* cor secundária              */
+    --text:    #e8e8ec;   /* texto principal             */
+    --muted:   #6b6b7e;   /* texto secundário            */
+    --danger:  #f03c3c;
+    --radius:  10px;
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -40,21 +81,7 @@
     gap: 14px;
     border-bottom: 1px solid var(--border);
   }
-  /* logo wrapper — click to edit */
-  .logo-area {
-    display: flex; align-items: center; gap: 12px;
-    cursor: pointer; position: relative;
-    padding: 6px 10px; border-radius: 10px;
-    transition: background .15s;
-  }
-  .logo-area:hover { background: var(--surface2); }
-  .logo-area:hover .edit-hint { opacity: 1; }
-  .edit-hint {
-    position: absolute; top: -22px; left: 50%; transform: translateX(-50%);
-    font-size: .6rem; font-family: 'Space Mono', monospace;
-    color: var(--muted); white-space: nowrap; opacity: 0; transition: opacity .15s;
-    pointer-events: none;
-  }
+  .logo-area { display: flex; align-items: center; gap: 12px; }
   .logo-img-wrap {
     width: 42px; height: 42px; border-radius: 10px;
     background: var(--accent);
@@ -63,71 +90,7 @@
   .logo-img-wrap img { width: 100%; height: 100%; object-fit: cover; }
   .logo-img-wrap svg { width: 24px; height: 24px; }
   #header-title { font-size: 1.55rem; font-weight: 800; letter-spacing: -0.5px; }
-  header .header-right { color: var(--muted); font-size: 0.9rem; font-family: 'Space Mono', monospace; margin-left: auto; }
-
-  /* ── LOGO EDITOR MODAL ── */
-  #logo-modal {
-    display: none; position: fixed; inset: 0; z-index: 100;
-    background: rgba(0,0,0,.7); backdrop-filter: blur(4px);
-    align-items: center; justify-content: center;
-  }
-  #logo-modal.open { display: flex; }
-  .modal-box {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 18px;
-    padding: 32px;
-    width: 340px;
-    display: flex; flex-direction: column; gap: 20px;
-  }
-  .modal-box h2 { font-size: 1.1rem; font-weight: 800; }
-  .modal-box p { font-size: .8rem; color: var(--muted); margin-top: -12px; line-height: 1.5; }
-  .modal-field { display: flex; flex-direction: column; gap: 6px; }
-  .modal-field label {
-    font-size: .72rem; font-family: 'Space Mono', monospace;
-    color: var(--muted); text-transform: uppercase; letter-spacing: 1px;
-  }
-  #logo-name-input {
-    background: var(--surface2); border: 1px solid var(--border);
-    border-radius: var(--radius); color: var(--text);
-    font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700;
-    padding: 10px 14px; outline: none; width: 100%;
-    transition: border-color .2s;
-  }
-  #logo-name-input:focus { border-color: var(--accent); }
-  .logo-upload-zone {
-    border: 2px dashed var(--border); border-radius: var(--radius);
-    padding: 22px 16px; text-align: center; cursor: pointer;
-    transition: border-color .2s, background .2s; position: relative;
-  }
-  .logo-upload-zone:hover { border-color: var(--accent); background: rgba(200,240,60,.04); }
-  .logo-upload-zone p { font-size: .82rem; color: var(--muted); }
-  .logo-upload-zone strong { color: var(--text); }
-  #logo-preview {
-    display: none; width: 64px; height: 64px; border-radius: 12px;
-    object-fit: cover; margin: 0 auto 10px; border: 2px solid var(--border);
-  }
-  #logo-file-input { display: none; }
-  .modal-btns { display: flex; gap: 10px; }
-  .btn-save {
-    flex: 1; padding: 11px; background: var(--accent); color: #0d0d0f;
-    border: none; border-radius: var(--radius); font-family: 'Syne', sans-serif;
-    font-weight: 800; font-size: .95rem; cursor: pointer; transition: opacity .2s;
-  }
-  .btn-save:hover { opacity: .85; }
-  .btn-cancel {
-    padding: 11px 18px; background: var(--surface2); color: var(--muted);
-    border: 1px solid var(--border); border-radius: var(--radius);
-    font-family: 'Syne', sans-serif; font-weight: 600; font-size: .9rem;
-    cursor: pointer; transition: border-color .2s;
-  }
-  .btn-cancel:hover { border-color: var(--text); color: var(--text); }
-  .btn-reset-logo {
-    width: 100%; padding: 8px; background: none; border: 1px dashed var(--border);
-    border-radius: var(--radius); color: var(--muted); font-size: .75rem;
-    font-family: 'Space Mono', monospace; cursor: pointer; transition: border-color .2s;
-  }
-  .btn-reset-logo:hover { border-color: var(--danger); color: var(--danger); }
+  .header-right { color: var(--muted); font-size: 0.9rem; font-family: 'Space Mono', monospace; margin-left: auto; }
 
   /* ── MAIN GRID ── */
   main {
@@ -176,7 +139,7 @@
   #drop-zone small { font-family: 'Space Mono', monospace; font-size: .8rem; color: var(--muted); }
   #file-input { display: none; }
 
-  /* file selected state */
+  /* file info */
   #file-info {
     display: none;
     align-items: center;
@@ -192,14 +155,14 @@
     background: rgba(200,240,60,.12);
     display: grid; place-items: center; flex-shrink: 0;
   }
-  #file-info .fi-name { font-size: .98rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  #file-info .fi-meta { font-family: 'Space Mono', monospace; font-size: .78rem; color: var(--muted); margin-top: 2px; }
-  #file-info .fi-clear {
+  .fi-name { font-size: .98rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .fi-meta { font-family: 'Space Mono', monospace; font-size: .78rem; color: var(--muted); margin-top: 2px; }
+  .fi-clear {
     margin-left: auto; background: none; border: none; color: var(--muted);
     cursor: pointer; padding: 4px; border-radius: 4px; flex-shrink: 0;
     transition: color .15s;
   }
-  #file-info .fi-clear:hover { color: var(--danger); }
+  .fi-clear:hover { color: var(--danger); }
 
   /* ── FORM FIELDS ── */
   .field-group { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
@@ -212,16 +175,16 @@
     text-transform: uppercase;
     display: flex; align-items: center; gap: 6px;
   }
-  .field label .tip {
+  .tip {
     width: 16px; height: 16px;
     background: var(--surface2);
     border: 1px solid var(--border);
     border-radius: 50%;
-    display: grid; place-items: center;
+    display: inline-grid; place-items: center;
     font-size: .72rem; color: var(--muted);
-    cursor: help; position: relative;
+    cursor: help; position: relative; flex-shrink: 0;
   }
-  .field label .tip:hover::after {
+  .tip:hover::after {
     content: attr(data-tip);
     position: absolute;
     bottom: calc(100% + 6px);
@@ -254,30 +217,25 @@
     -webkit-appearance: none;
   }
   select:focus, input:focus { border-color: var(--accent); }
-  select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6b7e' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px; }
-
-  /* checkboxes */
-  .checks { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
-  .check-row {
-    display: flex; align-items: center; gap: 10px;
-    cursor: pointer; font-size: 1rem;
+  select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6b7e' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px;
   }
+
+  /* checkbox */
+  .checks { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; margin-bottom: 20px; }
+  .check-row { display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 1rem; }
   .check-row input[type="checkbox"] { display: none; }
   .check-box {
     width: 18px; height: 18px;
-    border: 1px solid var(--border);
-    border-radius: 4px;
+    border: 1px solid var(--border); border-radius: 4px;
     background: var(--surface2);
     display: grid; place-items: center;
     flex-shrink: 0; transition: background .15s, border-color .15s;
   }
-  .check-row input:checked + .check-box {
-    background: var(--accent);
-    border-color: var(--accent);
-  }
+  .check-row input:checked + .check-box { background: var(--accent); border-color: var(--accent); }
   .check-row input:checked + .check-box::after {
-    content: '';
-    display: block;
+    content: ''; display: block;
     width: 5px; height: 9px;
     border: 2px solid #0d0d0f;
     border-top: none; border-left: none;
@@ -286,18 +244,12 @@
 
   /* ── PROCESS BUTTON ── */
   #btn-process {
-    width: 100%;
-    padding: 15px;
-    background: var(--accent);
-    color: #0d0d0f;
-    border: none;
-    border-radius: var(--radius);
-    font-family: 'Syne', sans-serif;
-    font-weight: 800;
-    font-size: 1.1rem;
-    letter-spacing: .5px;
-    cursor: pointer;
-    transition: opacity .2s, transform .1s;
+    width: 100%; padding: 15px;
+    background: var(--accent); color: #0d0d0f;
+    border: none; border-radius: var(--radius);
+    font-family: 'Syne', sans-serif; font-weight: 800;
+    font-size: 1.1rem; letter-spacing: .5px;
+    cursor: pointer; transition: opacity .2s, transform .1s;
     margin-top: 4px;
   }
   #btn-process:disabled { opacity: .4; cursor: not-allowed; }
@@ -306,10 +258,8 @@
 
   .hint {
     margin-top: 14px;
-    font-family: 'Space Mono', monospace;
-    font-size: .76rem;
-    color: var(--muted);
-    line-height: 1.6;
+    font-family: 'Space Mono', monospace; font-size: .76rem;
+    color: var(--muted); line-height: 1.6;
   }
   .hint a { color: var(--accent2); text-decoration: none; }
 
@@ -320,31 +270,18 @@
   #progress-bar { height: 100%; background: var(--accent); border-radius: 99px; width: 0; transition: width .2s; }
 
   /* ── CHUNKS PANEL ── */
-  .chunks-header {
-    display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;
-  }
+  .chunks-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
   #chunk-count {
-    font-family: 'Space Mono', monospace;
-    font-size: .8rem;
-    color: var(--muted);
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 99px;
-    padding: 3px 10px;
+    font-family: 'Space Mono', monospace; font-size: .8rem;
+    color: var(--muted); background: var(--surface2);
+    border: 1px solid var(--border); border-radius: 99px; padding: 3px 10px;
   }
-
   #btn-dl-all {
-    display: none;
-    padding: 9px 18px;
-    background: var(--accent2);
-    color: #0d0d0f;
-    border: none;
-    border-radius: 8px;
-    font-family: 'Syne', sans-serif;
-    font-weight: 700;
-    font-size: .9rem;
-    cursor: pointer;
-    transition: opacity .2s;
+    display: none; padding: 9px 18px;
+    background: var(--accent2); color: #0d0d0f;
+    border: none; border-radius: 8px;
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: .9rem;
+    cursor: pointer; transition: opacity .2s;
   }
   #btn-dl-all:hover { opacity: .85; }
 
@@ -352,65 +289,34 @@
 
   .chunk-item {
     display: flex; align-items: center; gap: 12px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 12px 14px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 12px 14px;
     animation: fadeUp .25s ease both;
   }
   @keyframes fadeUp {
     from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
+    to   { opacity: 1; transform: translateY(0); }
   }
-  .chunk-num {
-    font-family: 'Space Mono', monospace;
-    font-size: .78rem;
-    color: var(--muted);
-    min-width: 28px;
-    text-align: right;
-  }
+  .chunk-num { font-family: 'Space Mono', monospace; font-size: .78rem; color: var(--muted); min-width: 28px; text-align: right; }
   .chunk-info { flex: 1; min-width: 0; }
   .chunk-name { font-size: .92rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .chunk-time { font-family: 'Space Mono', monospace; font-size: .76rem; color: var(--muted); margin-top: 2px; }
 
-  .chunk-play {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 7px;
-    width: 32px; height: 32px;
-    display: grid; place-items: center;
-    cursor: pointer;
-    transition: border-color .15s, background .15s;
-    flex-shrink: 0;
-    color: var(--text);
+  .chunk-play, .chunk-dl {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 7px; width: 34px; height: 34px;
+    display: grid; place-items: center; cursor: pointer;
+    transition: border-color .15s, background .15s; flex-shrink: 0; color: var(--text);
   }
   .chunk-play:hover { border-color: var(--accent2); background: rgba(60,240,180,.06); }
   .chunk-play.playing { border-color: var(--accent2); background: rgba(60,240,180,.12); }
-
-  .chunk-dl {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 7px;
-    width: 32px; height: 32px;
-    display: grid; place-items: center;
-    cursor: pointer;
-    text-decoration: none;
-    color: var(--text);
-    transition: border-color .15s, background .15s;
-    flex-shrink: 0;
-  }
+  .chunk-dl { text-decoration: none; }
   .chunk-dl:hover { border-color: var(--accent); background: rgba(200,240,60,.06); }
 
-  /* empty state */
-  #empty-state {
-    text-align: center;
-    padding: 60px 20px;
-    color: var(--muted);
-  }
+  #empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
   #empty-state svg { opacity: .2; margin-bottom: 14px; }
   #empty-state p { font-size: .95rem; line-height: 1.6; }
 
-  /* ── SCROLLBAR ── */
   ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
@@ -419,8 +325,7 @@
 <body>
 
 <header>
-  <div class="logo-area" id="logo-area" title="Clique para editar logo e nome">
-    <span class="edit-hint">✏️ clique para editar</span>
+  <div class="logo-area">
     <div class="logo-img-wrap" id="logo-img-wrap">
       <svg viewBox="0 0 24 24" fill="none" stroke="#0d0d0f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
@@ -431,58 +336,27 @@
   <span class="header-right">v1.0 · 100% local</span>
 </header>
 
-<!-- ── LOGO EDITOR MODAL ── -->
-<div id="logo-modal">
-  <div class="modal-box">
-    <h2>Personalizar cabeçalho</h2>
-    <p>Altere o nome e/ou a logo exibidos no topo do site.</p>
-
-    <div class="modal-field">
-      <label>Nome do site</label>
-      <input type="text" id="logo-name-input" value="AudioSplit" maxlength="32" placeholder="Seu nome aqui" />
-    </div>
-
-    <div class="modal-field">
-      <label>Logo (imagem)</label>
-      <div class="logo-upload-zone" id="logo-upload-zone" onclick="document.getElementById('logo-file-input').click()">
-        <img id="logo-preview" src="" alt="preview" />
-        <p><strong>Clique para escolher</strong><br>PNG, JPG, SVG — recomendado 1:1</p>
-      </div>
-      <input type="file" id="logo-file-input" accept="image/*" />
-    </div>
-
-    <button class="btn-reset-logo" id="btn-reset-logo">↺ Restaurar logo padrão</button>
-
-    <div class="modal-btns">
-      <button class="btn-cancel" id="btn-modal-cancel">Cancelar</button>
-      <button class="btn-save" id="btn-modal-save">Salvar</button>
-    </div>
-  </div>
-</div>
-
 <main>
-  <!-- ── LEFT: INPUTS ── -->
+  <!-- ── LEFT ── -->
   <div class="card">
     <p class="card-title">// Entradas</p>
 
-    <!-- Drop Zone -->
     <div id="drop-zone" onclick="document.getElementById('file-input').click()">
       <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
         <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
       </svg>
-      <p><strong>Arraste seu MP3 aqui</strong><br>ou clique para escolher</p>
+      <p><strong>Arraste seu áudio aqui</strong><br>ou clique para escolher</p>
       <small style="margin-top:8px;display:block;">MP3 · WAV · OGG · FLAC · M4A</small>
     </div>
     <input type="file" id="file-input" accept="audio/*" />
 
-    <!-- File Info -->
     <div id="file-info">
       <div class="fi-icon">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c8f03c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
         </svg>
       </div>
-      <div>
+      <div style="min-width:0;flex:1;">
         <div class="fi-name" id="fi-name">—</div>
         <div class="fi-meta" id="fi-meta">—</div>
       </div>
@@ -491,72 +365,43 @@
       </button>
     </div>
 
-    <div class="field-group">
-      <div class="field">
-        <label>
-          Duração do Chunk
-          <span class="tip" data-tip="Tamanho de cada parte cortada">?</span>
-        </label>
-        <select id="chunk-length">
-          <option value="15">15 segundos</option>
-          <option value="30" selected>30 segundos</option>
-          <option value="60">60 segundos</option>
-          <option value="custom">Personalizado</option>
-        </select>
-      </div>
-      <div class="field" id="custom-field" style="display:none;">
-        <label>Segundos</label>
-        <input type="number" id="custom-seconds" value="30" min="1" max="3600" />
-      </div>
+    <div class="field">
+      <label>
+        Duração do Chunk
+        <span class="tip" data-tip="Tamanho de cada parte cortada">?</span>
+      </label>
+      <select id="chunk-length">
+        <option value="15">15 segundos</option>
+        <option value="30" selected>30 segundos</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>
+        Nome Base dos Arquivos
+        <span class="tip" data-tip="Prefixo dos arquivos. Ex: 'track' → track_001.wav">?</span>
+      </label>
+      <input type="text" id="base-name" value="track" placeholder="track" />
     </div>
 
     <div class="field-group">
-      <div class="field">
-        <label>
-          Nome Base
-          <span class="tip" data-tip="Prefixo dos arquivos gerados">?</span>
-        </label>
-        <input type="text" id="base-name" value="track" placeholder="track" />
-      </div>
-      <div class="field">
-        <label>
-          Título / Notecard
-          <span class="tip" data-tip="Título que aparece nos metadados">?</span>
-        </label>
-        <input type="text" id="song-title" value="My Song" placeholder="My Song" />
-      </div>
-    </div>
-
-    <div class="field-group">
-      <div class="field">
+      <div class="field" style="margin-bottom:0;">
         <label>
           Offset Inicial (s)
           <span class="tip" data-tip="Pular X segundos do início">?</span>
         </label>
         <input type="number" id="start-offset" value="0" min="0" />
       </div>
-      <div class="field">
+      <div class="field" style="margin-bottom:0;">
         <label>
           Duração Máx (s)
-          <span class="tip" data-tip="0 = processar tudo">?</span>
+          <span class="tip" data-tip="0 = processar o áudio inteiro">?</span>
         </label>
         <input type="number" id="max-duration" value="0" min="0" />
       </div>
     </div>
 
     <div class="checks">
-      <label class="check-row">
-        <input type="checkbox" id="opt-mono" checked />
-        <span class="check-box"></span>
-        Forçar mono
-        <span class="tip" data-tip="Converte para 1 canal (menor tamanho)">?</span>
-      </label>
-      <label class="check-row">
-        <input type="checkbox" id="opt-normalize" checked />
-        <span class="check-box"></span>
-        Normalizar volume
-        <span class="tip" data-tip="Iguala o volume de todos os chunks">?</span>
-      </label>
       <label class="check-row">
         <input type="checkbox" id="opt-fade" checked />
         <span class="check-box"></span>
@@ -568,15 +413,15 @@
     <button id="btn-process" disabled>Processar</button>
 
     <div id="progress-wrap">
-      <div id="progress-label">Processando chunk 1 de 1…</div>
+      <div id="progress-label">Processando…</div>
       <div id="progress-bar-bg"><div id="progress-bar"></div></div>
     </div>
 
     <p class="hint">Tudo roda no seu navegador — nenhum arquivo é enviado para servidores.<br>
-    Compatível com <a href="#">GitHub Pages</a> e <a href="#">Neocities</a>.</p>
+    Compatível com <a href="https://pages.github.com" target="_blank">GitHub Pages</a> e <a href="https://neocities.org" target="_blank">Neocities</a>.</p>
   </div>
 
-  <!-- ── RIGHT: CHUNKS ── -->
+  <!-- ── RIGHT ── -->
   <div class="card">
     <div class="chunks-header">
       <p class="card-title" style="margin:0;">// Chunks gerados</p>
@@ -585,7 +430,6 @@
         <button id="btn-dl-all">⬇ Baixar tudo</button>
       </div>
     </div>
-
     <div id="chunks-list">
       <div id="empty-state">
         <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
@@ -598,63 +442,54 @@
 </main>
 
 <script>
-/* ═══════════════════════════════════════
-   AudioSplit — pure browser audio cutter
-   Uses Web Audio API + OfflineAudioContext
-   ═══════════════════════════════════════ */
+/* ── Aplica branding do topo ── */
+document.getElementById('header-title').textContent = SITE_NAME;
+document.title = SITE_NAME + ' — Cortador de MP3';
+if (LOGO_URL) {
+  const wrap = document.getElementById('logo-img-wrap');
+  wrap.innerHTML = `<img src="${LOGO_URL}" alt="logo" />`;
+  wrap.style.background = 'transparent';
+}
 
-let audioCtx = null;
-let sourceBuffer = null;
-let generatedChunks = [];
-let currentAudio = null;
-let currentPlayBtn = null;
+/* ── Estado ── */
+let audioCtx = null, sourceBuffer = null;
+let generatedChunks = [], currentAudio = null, currentPlayBtn = null;
 
-const dropZone    = document.getElementById('drop-zone');
-const fileInput   = document.getElementById('file-input');
-const fileInfo    = document.getElementById('file-info');
-const fiName      = document.getElementById('fi-name');
-const fiMeta      = document.getElementById('fi-meta');
-const btnClear    = document.getElementById('btn-clear');
-const btnProcess  = document.getElementById('btn-process');
-const progressWrap = document.getElementById('progress-wrap');
-const progressBar  = document.getElementById('progress-bar');
-const progressLabel= document.getElementById('progress-label');
-const chunksList  = document.getElementById('chunks-list');
-const emptyState  = document.getElementById('empty-state');
-const chunkCount  = document.getElementById('chunk-count');
-const btnDlAll    = document.getElementById('btn-dl-all');
-const chunkLengthSel = document.getElementById('chunk-length');
-const customField = document.getElementById('custom-field');
+const dropZone      = document.getElementById('drop-zone');
+const fileInput     = document.getElementById('file-input');
+const fileInfo      = document.getElementById('file-info');
+const fiName        = document.getElementById('fi-name');
+const fiMeta        = document.getElementById('fi-meta');
+const btnClear      = document.getElementById('btn-clear');
+const btnProcess    = document.getElementById('btn-process');
+const progressWrap  = document.getElementById('progress-wrap');
+const progressBar   = document.getElementById('progress-bar');
+const progressLabel = document.getElementById('progress-label');
+const chunksList    = document.getElementById('chunks-list');
+const emptyState    = document.getElementById('empty-state');
+const chunkCount    = document.getElementById('chunk-count');
+const btnDlAll      = document.getElementById('btn-dl-all');
 
-// ── Drag & Drop ──
+/* ── Drag & Drop ── */
 dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
 dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
 dropZone.addEventListener('drop', e => {
-  e.preventDefault();
-  dropZone.classList.remove('drag-over');
-  const f = e.dataTransfer.files[0];
-  if (f) loadFile(f);
+  e.preventDefault(); dropZone.classList.remove('drag-over');
+  if (e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);
 });
 fileInput.addEventListener('change', () => { if (fileInput.files[0]) loadFile(fileInput.files[0]); });
 btnClear.addEventListener('click', clearFile);
-chunkLengthSel.addEventListener('change', () => {
-  customField.style.display = chunkLengthSel.value === 'custom' ? 'flex' : 'none';
-});
 
-// ── Load File ──
+/* ── Carregar arquivo ── */
 async function loadFile(file) {
   dropZone.style.display = 'none';
   fiName.textContent = file.name;
-  fiMeta.textContent = `${(file.size / 1024 / 1024).toFixed(2)} MB · ${file.type || 'audio'}`;
+  fiMeta.textContent = `${(file.size/1024/1024).toFixed(2)} MB · ${file.type || 'audio'}`;
   fileInfo.style.display = 'flex';
   btnProcess.disabled = false;
-
   audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  const arrayBuffer = await file.arrayBuffer();
-  sourceBuffer = await audioCtx.decodeAudioData(arrayBuffer);
-
-  const dur = sourceBuffer.duration;
-  fiMeta.textContent += ` · ${formatTime(dur)}`;
+  sourceBuffer = await audioCtx.decodeAudioData(await file.arrayBuffer());
+  fiMeta.textContent += ` · ${formatTime(sourceBuffer.duration)}`;
 }
 
 function clearFile() {
@@ -666,7 +501,7 @@ function clearFile() {
   clearChunks();
 }
 
-// ── Process ──
+/* ── Processar ── */
 btnProcess.addEventListener('click', process);
 
 async function process() {
@@ -675,179 +510,117 @@ async function process() {
   btnProcess.disabled = true;
   progressWrap.style.display = 'block';
 
-  const chunkSecs = chunkLengthSel.value === 'custom'
-    ? parseFloat(document.getElementById('custom-seconds').value) || 30
-    : parseFloat(chunkLengthSel.value);
-
-  const baseName  = document.getElementById('base-name').value.trim() || 'track';
-  const offset    = parseFloat(document.getElementById('start-offset').value) || 0;
-  const maxDur    = parseFloat(document.getElementById('max-duration').value) || 0;
-  const forceMono = document.getElementById('opt-mono').checked;
-  const normalize = document.getElementById('opt-normalize').checked;
-  const fade      = document.getElementById('opt-fade').checked;
-
-  const totalDur  = maxDur > 0 ? Math.min(sourceBuffer.duration - offset, maxDur) : sourceBuffer.duration - offset;
-  const numChunks = Math.ceil(totalDur / chunkSecs);
-  const sampleRate = sourceBuffer.sampleRate;
-  const numChannels = forceMono ? 1 : sourceBuffer.numberOfChannels;
-
-  generatedChunks = [];
+  const chunkSecs  = parseFloat(document.getElementById('chunk-length').value);
+  const baseName   = document.getElementById('base-name').value.trim() || 'track';
+  const offset     = parseFloat(document.getElementById('start-offset').value) || 0;
+  const maxDur     = parseFloat(document.getElementById('max-duration').value) || 0;
+  const fade       = document.getElementById('opt-fade').checked;
+  const sr         = sourceBuffer.sampleRate;
+  const numCh      = sourceBuffer.numberOfChannels;
+  const totalDur   = maxDur > 0 ? Math.min(sourceBuffer.duration - offset, maxDur) : sourceBuffer.duration - offset;
+  const numChunks  = Math.ceil(totalDur / chunkSecs);
 
   for (let i = 0; i < numChunks; i++) {
     const start = offset + i * chunkSecs;
     const end   = Math.min(start + chunkSecs, offset + totalDur);
-    const len   = end - start;
-
-    progressLabel.textContent = `Processando chunk ${i + 1} de ${numChunks}…`;
-    progressBar.style.width = `${((i) / numChunks) * 100}%`;
-
-    // tiny delay to let UI repaint
+    progressLabel.textContent = `Processando chunk ${i+1} de ${numChunks}…`;
+    progressBar.style.width   = `${(i / numChunks) * 100}%`;
     await new Promise(r => setTimeout(r, 0));
 
-    const frameLen = Math.floor(len * sampleRate);
-    const offline  = new OfflineAudioContext(numChannels, frameLen, sampleRate);
+    const frameLen = Math.floor((end - start) * sr);
+    const offline  = new OfflineAudioContext(numCh, frameLen, sr);
+    const src      = offline.createBufferSource();
+    const sliceBuf = offline.createBuffer(numCh, frameLen, sr);
+    const off0     = Math.floor(start * sr);
 
-    const src = offline.createBufferSource();
-    // create a slice buffer
-    const sliceBuf = offline.createBuffer(numChannels, frameLen, sampleRate);
-    const srcFrameOffset = Math.floor(start * sampleRate);
-
-    for (let ch = 0; ch < numChannels; ch++) {
-      const srcCh = ch < sourceBuffer.numberOfChannels ? ch : 0;
-      const srcData = sourceBuffer.getChannelData(srcCh);
-      const dstData = sliceBuf.getChannelData(ch);
-      for (let s = 0; s < frameLen; s++) {
-        dstData[s] = srcData[srcFrameOffset + s] || 0;
-      }
+    for (let ch = 0; ch < numCh; ch++) {
+      const sd = sourceBuffer.getChannelData(ch);
+      const dd = sliceBuf.getChannelData(ch);
+      for (let s = 0; s < frameLen; s++) dd[s] = sd[off0 + s] || 0;
     }
-
     src.buffer = sliceBuf;
-
-    // normalize
-    if (normalize) {
-      let peak = 0;
-      for (let ch = 0; ch < numChannels; ch++) {
-        const data = sliceBuf.getChannelData(ch);
-        for (let s = 0; s < data.length; s++) {
-          if (Math.abs(data[s]) > peak) peak = Math.abs(data[s]);
-        }
-      }
-      if (peak > 0 && peak < 1) {
-        const gain = offline.createGain();
-        gain.gain.value = 1 / peak;
-        src.connect(gain);
-        gain.connect(offline.destination);
-      } else {
-        src.connect(offline.destination);
-      }
-    } else {
-      src.connect(offline.destination);
-    }
-
+    src.connect(offline.destination);
     src.start(0);
     const rendered = await offline.startRendering();
 
-    // fade
     if (fade) {
-      const fadeSamples = Math.floor(0.005 * sampleRate);
+      const fs = Math.floor(0.005 * sr);
       for (let ch = 0; ch < rendered.numberOfChannels; ch++) {
-        const data = rendered.getChannelData(ch);
-        for (let s = 0; s < fadeSamples && s < data.length; s++) {
-          data[s] *= s / fadeSamples;
-        }
-        for (let s = 0; s < fadeSamples && s < data.length; s++) {
-          data[data.length - 1 - s] *= s / fadeSamples;
-        }
+        const d = rendered.getChannelData(ch);
+        for (let s = 0; s < fs && s < d.length; s++) d[s] *= s / fs;
+        for (let s = 0; s < fs && s < d.length; s++) d[d.length-1-s] *= s / fs;
       }
     }
 
-    const wav = bufferToWav(rendered);
-    const blob = new Blob([wav], { type: 'audio/wav' });
-    const url  = URL.createObjectURL(blob);
-    const padded = String(i + 1).padStart(3, '0');
-    const filename = `${baseName}_${padded}.wav`;
-
-    generatedChunks.push({ url, filename, start, end, blob });
-    appendChunkItem(i + 1, filename, start, end, url, filename);
+    const blob     = new Blob([bufferToWav(rendered)], { type: 'audio/wav' });
+    const url      = URL.createObjectURL(blob);
+    const filename = `${baseName}_${String(i+1).padStart(3,'0')}.wav`;
+    generatedChunks.push({ url, filename });
+    appendChunkItem(i+1, filename, start, end, url, filename);
   }
 
   progressBar.style.width = '100%';
   progressLabel.textContent = `✓ ${numChunks} chunks gerados!`;
   setTimeout(() => { progressWrap.style.display = 'none'; }, 2000);
-
   chunkCount.textContent = `${numChunks} chunk${numChunks !== 1 ? 's' : ''}`;
   btnDlAll.style.display = 'inline-flex';
   btnProcess.disabled = false;
 }
 
-// ── Chunk List Item ──
+/* ── Item da lista ── */
 function appendChunkItem(num, name, start, end, url, filename) {
   emptyState.style.display = 'none';
   const item = document.createElement('div');
   item.className = 'chunk-item';
-  item.style.animationDelay = `${(num - 1) * 30}ms`;
+  item.style.animationDelay = `${(num-1)*30}ms`;
   item.innerHTML = `
     <span class="chunk-num">#${String(num).padStart(2,'0')}</span>
     <div class="chunk-info">
       <div class="chunk-name">${name}</div>
       <div class="chunk-time">${formatTime(start)} → ${formatTime(end)}</div>
     </div>
-    <button class="chunk-play" data-url="${url}" title="Ouvir">
+    <button class="chunk-play" title="Ouvir">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
     </button>
     <a class="chunk-dl" href="${url}" download="${filename}" title="Baixar">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-    </a>
-  `;
-  const playBtn = item.querySelector('.chunk-play');
-  playBtn.addEventListener('click', () => togglePlay(playBtn, url));
+    </a>`;
+  item.querySelector('.chunk-play').addEventListener('click', e => togglePlay(e.currentTarget, url));
   chunksList.appendChild(item);
 }
 
-// ── Play / Stop ──
+/* ── Play ── */
 function togglePlay(btn, url) {
+  const PLAY = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>`;
+  const PAUSE= `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>`;
   if (currentAudio && currentPlayBtn === btn) {
-    currentAudio.pause();
-    currentAudio = null;
-    currentPlayBtn = null;
-    btn.classList.remove('playing');
-    btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>`;
-    return;
+    currentAudio.pause(); currentAudio = null; currentPlayBtn = null;
+    btn.classList.remove('playing'); btn.innerHTML = PLAY; return;
   }
   if (currentAudio) {
     currentAudio.pause();
-    if (currentPlayBtn) {
-      currentPlayBtn.classList.remove('playing');
-      currentPlayBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>`;
-    }
+    if (currentPlayBtn) { currentPlayBtn.classList.remove('playing'); currentPlayBtn.innerHTML = PLAY; }
   }
   const audio = new Audio(url);
-  currentAudio = audio;
-  currentPlayBtn = btn;
-  btn.classList.add('playing');
-  btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>`;
+  currentAudio = audio; currentPlayBtn = btn;
+  btn.classList.add('playing'); btn.innerHTML = PAUSE;
   audio.play();
   audio.addEventListener('ended', () => {
-    btn.classList.remove('playing');
-    btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>`;
-    currentAudio = null;
-    currentPlayBtn = null;
+    btn.classList.remove('playing'); btn.innerHTML = PLAY;
+    currentAudio = null; currentPlayBtn = null;
   });
 }
 
-// ── Download All ──
+/* ── Baixar tudo ── */
 btnDlAll.addEventListener('click', async () => {
-  for (let i = 0; i < generatedChunks.length; i++) {
-    const { url, filename } = generatedChunks[i];
+  for (const { url, filename } of generatedChunks) {
     const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    a.click();
+    a.href = url; a.download = filename; a.click();
     await new Promise(r => setTimeout(r, 200));
   }
 });
 
-// ── Clear Chunks ──
+/* ── Limpar ── */
 function clearChunks() {
   generatedChunks.forEach(c => URL.revokeObjectURL(c.url));
   generatedChunks = [];
@@ -858,119 +631,31 @@ function clearChunks() {
   btnDlAll.style.display = 'none';
 }
 
-// ── WAV Encoder ──
-function bufferToWav(buffer) {
-  const numCh = buffer.numberOfChannels;
-  const sr    = buffer.sampleRate;
-  const fmt   = 1; // PCM
-  const bps   = 16;
-  const numFrames = buffer.length;
-  const dataLen = numFrames * numCh * (bps / 8);
-
-  const ab  = new ArrayBuffer(44 + dataLen);
-  const dv  = new DataView(ab);
-  let pos = 0;
-  const w  = (v, n) => { dv.setUint8(pos++, v); };
-  const ws = s => { for (let i = 0; i < s.length; i++) w(s.charCodeAt(i)); };
-  const w16 = v => { dv.setInt16(pos, v, true); pos += 2; };
-  const w32 = v => { dv.setUint32(pos, v, true); pos += 4; };
-
-  ws('RIFF'); w32(36 + dataLen); ws('WAVE');
-  ws('fmt '); w32(16); w16(fmt); w16(numCh);
-  w32(sr); w32(sr * numCh * bps / 8); w16(numCh * bps / 8); w16(bps);
-  ws('data'); w32(dataLen);
-
-  const channels = [];
-  for (let c = 0; c < numCh; c++) channels.push(buffer.getChannelData(c));
-
-  for (let i = 0; i < numFrames; i++) {
-    for (let c = 0; c < numCh; c++) {
-      let s = Math.max(-1, Math.min(1, channels[c][i]));
-      s = s < 0 ? s * 0x8000 : s * 0x7FFF;
-      dv.setInt16(pos, s, true); pos += 2;
-    }
+/* ── WAV Encoder ── */
+function bufferToWav(buf) {
+  const numCh = buf.numberOfChannels, sr = buf.sampleRate, n = buf.length;
+  const ab = new ArrayBuffer(44 + n * numCh * 2);
+  const dv = new DataView(ab); let p = 0;
+  const ws  = s => { for (let i=0;i<s.length;i++) dv.setUint8(p++,s.charCodeAt(i)); };
+  const w16 = v => { dv.setInt16(p,v,true); p+=2; };
+  const w32 = v => { dv.setUint32(p,v,true); p+=4; };
+  ws('RIFF'); w32(36+n*numCh*2); ws('WAVE');
+  ws('fmt '); w32(16); w16(1); w16(numCh);
+  w32(sr); w32(sr*numCh*2); w16(numCh*2); w16(16);
+  ws('data'); w32(n*numCh*2);
+  const ch = Array.from({length:numCh},(_,c)=>buf.getChannelData(c));
+  for (let i=0;i<n;i++) for (let c=0;c<numCh;c++) {
+    const s = Math.max(-1,Math.min(1,ch[c][i]));
+    dv.setInt16(p, s<0?s*0x8000:s*0x7FFF, true); p+=2;
   }
   return ab;
 }
 
-// ── Helpers ──
+/* ── Helpers ── */
 function formatTime(s) {
-  const m = Math.floor(s / 60);
-  const ss = (s % 60).toFixed(1).padStart(4, '0');
-  return `${String(m).padStart(2,'0')}:${ss}`;
+  const m = Math.floor(s/60);
+  return `${String(m).padStart(2,'0')}:${(s%60).toFixed(1).padStart(4,'0')}`;
 }
-
-// ── Logo / Name Editor ──
-const logoArea      = document.getElementById('logo-area');
-const logoModal     = document.getElementById('logo-modal');
-const logoNameInput = document.getElementById('logo-name-input');
-const logoFileInput = document.getElementById('logo-file-input');
-const logoPreview   = document.getElementById('logo-preview');
-const logoImgWrap   = document.getElementById('logo-img-wrap');
-const headerTitle   = document.getElementById('header-title');
-const btnModalSave  = document.getElementById('btn-modal-save');
-const btnModalCancel= document.getElementById('btn-modal-cancel');
-const btnResetLogo  = document.getElementById('btn-reset-logo');
-
-let pendingLogoDataUrl = null; // holds new image while modal is open
-let savedLogoDataUrl   = null; // the actually saved image
-
-const defaultLogoSVG = `<svg viewBox="0 0 24 24" fill="none" stroke="#0d0d0f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>`;
-
-logoArea.addEventListener('click', () => {
-  logoNameInput.value = headerTitle.textContent;
-  pendingLogoDataUrl = savedLogoDataUrl;
-  if (savedLogoDataUrl) {
-    logoPreview.src = savedLogoDataUrl;
-    logoPreview.style.display = 'block';
-  } else {
-    logoPreview.style.display = 'none';
-  }
-  logoModal.classList.add('open');
-});
-
-logoFileInput.addEventListener('change', () => {
-  const file = logoFileInput.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    pendingLogoDataUrl = e.target.result;
-    logoPreview.src = pendingLogoDataUrl;
-    logoPreview.style.display = 'block';
-  };
-  reader.readAsDataURL(file);
-});
-
-btnResetLogo.addEventListener('click', () => {
-  pendingLogoDataUrl = null;
-  logoPreview.style.display = 'none';
-  logoPreview.src = '';
-  logoFileInput.value = '';
-});
-
-btnModalSave.addEventListener('click', () => {
-  const newName = logoNameInput.value.trim() || 'AudioSplit';
-  headerTitle.textContent = newName;
-  document.title = newName + ' — Cortador de MP3';
-  savedLogoDataUrl = pendingLogoDataUrl;
-  if (savedLogoDataUrl) {
-    logoImgWrap.innerHTML = `<img src="${savedLogoDataUrl}" alt="logo" />`;
-    logoImgWrap.style.background = 'transparent';
-  } else {
-    logoImgWrap.innerHTML = defaultLogoSVG;
-    logoImgWrap.style.background = 'var(--accent)';
-  }
-  logoModal.classList.remove('open');
-});
-
-btnModalCancel.addEventListener('click', () => {
-  pendingLogoDataUrl = savedLogoDataUrl;
-  logoModal.classList.remove('open');
-});
-
-logoModal.addEventListener('click', e => {
-  if (e.target === logoModal) logoModal.classList.remove('open');
-});
 </script>
 </body>
 </html>
