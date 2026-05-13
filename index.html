@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AudioSplit — Cortador de MP3</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0d0d0f;
+    --surface: #141418;
+    --surface2: #1c1c22;
+    --border: #2a2a35;
+    --accent: #c8f03c;
+    --accent2: #3cf0b4;
+    --text: #e8e8ec;
+    --muted: #6b6b7e;
+    --danger: #f03c3c;
+    --radius: 10px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ── HEADER ── */
+  header {
+    width: 100%;
+    padding: 28px 40px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .logo-icon {
+    width: 38px; height: 38px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: grid; place-items: center;
+  }
+  .logo-icon svg { width: 22px; height: 22px; }
+  header h1 { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.5px; }
+  header span { color: var(--muted); font-size: 0.85rem; font-family: 'Space Mono', monospace; margin-left: auto; }
+
+  /* ── MAIN GRID ── */
+  main {
+    width: 100%;
+    max-width: 1100px;
+    padding: 40px 24px 60px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  @media (max-width: 760px) { main { grid-template-columns: 1fr; } }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+  }
+  .card-title {
+    font-size: 0.72rem;
+    font-family: 'Space Mono', monospace;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+
+  /* ── DROP ZONE ── */
+  #drop-zone {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 36px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color .2s, background .2s;
+    margin-bottom: 24px;
+  }
+  #drop-zone:hover, #drop-zone.drag-over {
+    border-color: var(--accent);
+    background: rgba(200,240,60,.04);
+  }
+  #drop-zone svg { margin-bottom: 10px; opacity: .5; }
+  #drop-zone p { font-size: .9rem; color: var(--muted); line-height: 1.5; }
+  #drop-zone p strong { color: var(--text); }
+  #drop-zone small { font-family: 'Space Mono', monospace; font-size: .7rem; color: var(--muted); }
+  #file-input { display: none; }
+
+  /* file selected state */
+  #file-info {
+    display: none;
+    align-items: center;
+    gap: 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    margin-bottom: 24px;
+  }
+  #file-info .fi-icon {
+    width: 36px; height: 36px; border-radius: 8px;
+    background: rgba(200,240,60,.12);
+    display: grid; place-items: center; flex-shrink: 0;
+  }
+  #file-info .fi-name { font-size: .85rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #file-info .fi-meta { font-family: 'Space Mono', monospace; font-size: .7rem; color: var(--muted); margin-top: 2px; }
+  #file-info .fi-clear {
+    margin-left: auto; background: none; border: none; color: var(--muted);
+    cursor: pointer; padding: 4px; border-radius: 4px; flex-shrink: 0;
+    transition: color .15s;
+  }
+  #file-info .fi-clear:hover { color: var(--danger); }
+
+  /* ── FORM FIELDS ── */
+  .field-group { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+  .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+  .field label {
+    font-size: .72rem;
+    font-family: 'Space Mono', monospace;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .field label .tip {
+    width: 15px; height: 15px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    display: grid; place-items: center;
+    font-size: .65rem; color: var(--muted);
+    cursor: help; position: relative;
+  }
+  .field label .tip:hover::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%; transform: translateX(-50%);
+    background: #2a2a35;
+    color: var(--text);
+    font-size: .7rem;
+    padding: 6px 10px;
+    border-radius: 6px;
+    white-space: nowrap;
+    z-index: 10;
+    pointer-events: none;
+    font-family: 'Syne', sans-serif;
+    letter-spacing: 0;
+    text-transform: none;
+    border: 1px solid var(--border);
+  }
+
+  select, input[type="text"], input[type="number"] {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: .85rem;
+    padding: 10px 14px;
+    outline: none;
+    transition: border-color .2s;
+    width: 100%;
+    -webkit-appearance: none;
+  }
+  select:focus, input:focus { border-color: var(--accent); }
+  select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6b7e' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px; }
+
+  /* checkboxes */
+  .checks { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+  .check-row {
+    display: flex; align-items: center; gap: 10px;
+    cursor: pointer; font-size: .88rem;
+  }
+  .check-row input[type="checkbox"] { display: none; }
+  .check-box {
+    width: 18px; height: 18px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--surface2);
+    display: grid; place-items: center;
+    flex-shrink: 0; transition: background .15s, border-color .15s;
+  }
+  .check-row input:checked + .check-box {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .check-row input:checked + .check-box::after {
+    content: '';
+    display: block;
+    width: 5px; height: 9px;
+    border: 2px solid #0d0d0f;
+    border-top: none; border-left: none;
+    transform: rotate(40deg) translateY(-1px);
+  }
+
+  /* ── PROCESS BUTTON ── */
+  #btn-process {
+    width: 100%;
+    padding: 14px;
+    background: var(--accent);
+    color: #0d0d0f;
+    border: none;
+    border-radius: var(--radius);
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1rem;
+    letter-spacing: .5px;
+    cursor: pointer;
+    transition: opacity .2s, transform .1s;
+    margin-top: 4px;
+  }
+  #btn-process:disabled { opacity: .4; cursor: not-allowed; }
+  #btn-process:not(:disabled):hover { opacity: .88; }
+  #btn-process:not(:disabled):active { transform: scale(.98); }
+
+  .hint {
+    margin-top: 14px;
+    font-family: 'Space Mono', monospace;
+    font-size: .68rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+  .hint a { color: var(--accent2); text-decoration: none; }
+
+  /* ── PROGRESS ── */
+  #progress-wrap { display: none; margin-top: 16px; }
+  #progress-label { font-size: .75rem; font-family: 'Space Mono', monospace; color: var(--muted); margin-bottom: 6px; }
+  #progress-bar-bg { background: var(--surface2); border-radius: 99px; height: 6px; overflow: hidden; }
+  #progress-bar { height: 100%; background: var(--accent); border-radius: 99px; width: 0; transition: width .2s; }
+
+  /* ── CHUNKS PANEL ── */
+  .chunks-header {
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;
+  }
+  #chunk-count {
+    font-family: 'Space Mono', monospace;
+    font-size: .72rem;
+    color: var(--muted);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    padding: 3px 10px;
+  }
+
+  #btn-dl-all {
+    display: none;
+    padding: 8px 16px;
+    background: var(--accent2);
+    color: #0d0d0f;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: .82rem;
+    cursor: pointer;
+    transition: opacity .2s;
+  }
+  #btn-dl-all:hover { opacity: .85; }
+
+  #chunks-list { display: flex; flex-direction: column; gap: 10px; }
+
+  .chunk-item {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    animation: fadeUp .25s ease both;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .chunk-num {
+    font-family: 'Space Mono', monospace;
+    font-size: .7rem;
+    color: var(--muted);
+    min-width: 28px;
+    text-align: right;
+  }
+  .chunk-info { flex: 1; min-width: 0; }
+  .chunk-name { font-size: .82rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .chunk-time { font-family: 'Space Mono', monospace; font-size: .68rem; color: var(--muted); margin-top: 2px; }
+
+  .chunk-play {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    width: 32px; height: 32px;
+    display: grid; place-items: center;
+    cursor: pointer;
+    transition: border-color .15s, background .15s;
+    flex-shrink: 0;
+    color: var(--text);
+  }
+  .chunk-play:hover { border-color: var(--accent2); background: rgba(60,240,180,.06); }
+  .chunk-play.playing { border-color: var(--accent2); background: rgba(60,240,180,.12); }
+
+  .chunk-dl {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    width: 32px; height: 32px;
+    display: grid; place-items: center;
+    cursor: pointer;
+    text-decoration: none;
+    color: var(--text);
+    transition: border-color .15s, background .15s;
+    flex-shrink: 0;
+  }
+  .chunk-dl:hover { border-color: var(--accent); background: rgba(200,240,60,.06); }
+
+  /* empty state */
+  #empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--muted);
+  }
+  #empty-state svg { opacity: .2; margin-bottom: 14px; }
+  #empty-state p { font-size: .85rem; line-height: 1.6; }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-icon">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#0d0d0f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+    </svg>
+  </div>
+  <h1>AudioSplit</h1>
+  <span>v1.0 · 100% local</span>
+</header>
+
+<main>
+  <!-- ── LEFT: INPUTS ── -->
+  <div class="card">
+    <p class="card-title">// Entradas</p>
+
+    <!-- Drop Zone -->
+    <div id="drop-zone" onclick="document.getElementById('file-input').click()">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
+      </svg>
+      <p><strong>Arraste seu MP3 aqui</strong><br>ou clique para escolher</p>
+      <small style="margin-top:8px;display:block;">MP3 · WAV · OGG · FLAC · M4A</small>
+    </div>
+    <input type="file" id="file-input" accept="audio/*" />
+
+    <!-- File Info -->
+    <div id="file-info">
+      <div class="fi-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c8f03c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
+        </svg>
+      </div>
+      <div>
+        <div class="fi-name" id="fi-name">—</div>
+        <div class="fi-meta" id="fi-meta">—</div>
+      </div>
+      <button class="fi-clear" id="btn-clear" title="Remover arquivo">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="field-group">
+      <div class="field">
+        <label>
+          Duração do Chunk
+          <span class="tip" data-tip="Tamanho de cada parte cortada">?</span>
+        </label>
+        <select id="chunk-length">
+          <option value="15">15 segundos</option>
+          <option value="30" selected>30 segundos</option>
+          <option value="60">60 segundos</option>
+          <option value="custom">Personalizado</option>
+        </select>
+      </div>
+      <div class="field" id="custom-field" style="display:none;">
+        <label>Segundos</label>
+        <input type="number" id="custom-seconds" value="30" min="1" max="3600" />
+      </div>
+    </div>
+
+    <div class="field-group">
+      <div class="field">
+        <label>
+          Nome Base
+          <span class="tip" data-tip="Prefixo dos arquivos gerados">?</span>
+        </label>
+        <input type="text" id="base-name" value="track" placeholder="track" />
+      </div>
+      <div class="field">
+        <label>
+          Título / Notecard
+          <span class="tip" data-tip="Título que aparece nos metadados">?</span>
+        </label>
+        <input type="text" id="song-title" value="My Song" placeholder="My Song" />
+      </div>
+    </div>
+
+    <div class="field-group">
+      <div class="field">
+        <label>
+          Offset Inicial (s)
+          <span class="tip" data-tip="Pular X segundos do início">?</span>
+        </label>
+        <input type="number" id="start-offset" value="0" min="0" />
+      </div>
+      <div class="field">
+        <label>
+          Duração Máx (s)
+          <span class="tip" data-tip="0 = processar tudo">?</span>
+        </label>
+        <input type="number" id="max-duration" value="0" min="0" />
+      </div>
+    </div>
+
+    <div class="checks">
+      <label class="check-row">
+        <input type="checkbox" id="opt-mono" checked />
+        <span class="check-box"></span>
+        Forçar mono
+        <span class="tip" data-tip="Converte para 1 canal (menor tamanho)">?</span>
+      </label>
+      <label class="check-row">
+        <input type="checkbox" id="opt-normalize" checked />
+        <span class="check-box"></span>
+        Normalizar volume
+        <span class="tip" data-tip="Iguala o volume de todos os chunks">?</span>
+      </label>
+      <label class="check-row">
+        <input type="checkbox" id="opt-fade" checked />
+        <span class="check-box"></span>
+        Fade in/out 5ms
+        <span class="tip" data-tip="Evita cliques/pops nas bordas do corte">?</span>
+      </label>
+    </div>
+
+    <button id="btn-process" disabled>Processar</button>
+
+    <div id="progress-wrap">
+      <div id="progress-label">Processando chunk 1 de 1…</div>
+      <div id="progress-bar-bg"><div id="progress-bar"></div></div>
+    </div>
+
+    <p class="hint">Tudo roda no seu navegador — nenhum arquivo é enviado para servidores.<br>
+    Compatível com <a href="#">GitHub Pages</a> e <a href="#">Neocities</a>.</p>
+  </div>
+
+  <!-- ── RIGHT: CHUNKS ── -->
+  <div class="card">
+    <div class="chunks-header">
+      <p class="card-title" style="margin:0;">// Chunks gerados</p>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span id="chunk-count">0 chunks</span>
+        <button id="btn-dl-all">⬇ Baixar tudo</button>
+      </div>
+    </div>
+
+    <div id="chunks-list">
+      <div id="empty-state">
+        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
+        </svg>
+        <p>Carregue um arquivo de áudio<br>e clique em <strong>Processar</strong><br>para ver os chunks aqui.</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+/* ═══════════════════════════════════════
+   AudioSplit — pure browser audio cutter
+   Uses Web Audio API + OfflineAudioContext
+   ═══════════════════════════════════════ */
+
+let audioCtx = null;
+let sourceBuffer = null;
+let generatedChunks = [];
+let currentAudio = null;
+let currentPlayBtn = null;
+
+const dropZone    = document.getElementById('drop-zone');
+const fileInput   = document.getElementById('file-input');
+const fileInfo    = document.getElementById('file-info');
+const fiName      = document.getElementById('fi-name');
+const fiMeta      = document.getElementById('fi-meta');
+const btnClear    = document.getElementById('btn-clear');
+const btnProcess  = document.getElementById('btn-process');
+const progressWrap = document.getElementById('progress-wrap');
+const progressBar  = document.getElementById('progress-bar');
+const progressLabel= document.getElementById('progress-label');
+const chunksList  = document.getElementById('chunks-list');
+const emptyState  = document.getElementById('empty-state');
+const chunkCount  = document.getElementById('chunk-count');
+const btnDlAll    = document.getElementById('btn-dl-all');
+const chunkLengthSel = document.getElementById('chunk-length');
+const customField = document.getElementById('custom-field');
+
+// ── Drag & Drop ──
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('drag-over');
+  const f = e.dataTransfer.files[0];
+  if (f) loadFile(f);
+});
+fileInput.addEventListener('change', () => { if (fileInput.files[0]) loadFile(fileInput.files[0]); });
+btnClear.addEventListener('click', clearFile);
+chunkLengthSel.addEventListener('change', () => {
+  customField.style.display = chunkLengthSel.value === 'custom' ? 'flex' : 'none';
+});
+
+// ── Load File ──
+async function loadFile(file) {
+  dropZone.style.display = 'none';
+  fiName.textContent = file.name;
+  fiMeta.textContent = `${(file.size / 1024 / 1024).toFixed(2)} MB · ${file.type || 'audio'}`;
+  fileInfo.style.display = 'flex';
+  btnProcess.disabled = false;
+
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  const arrayBuffer = await file.arrayBuffer();
+  sourceBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+
+  const dur = sourceBuffer.duration;
+  fiMeta.textContent += ` · ${formatTime(dur)}`;
+}
+
+function clearFile() {
+  dropZone.style.display = 'block';
+  fileInfo.style.display = 'none';
+  fileInput.value = '';
+  btnProcess.disabled = true;
+  sourceBuffer = null;
+  clearChunks();
+}
+
+// ── Process ──
+btnProcess.addEventListener('click', process);
+
+async function process() {
+  if (!sourceBuffer) return;
+  clearChunks();
+  btnProcess.disabled = true;
+  progressWrap.style.display = 'block';
+
+  const chunkSecs = chunkLengthSel.value === 'custom'
+    ? parseFloat(document.getElementById('custom-seconds').value) || 30
+    : parseFloat(chunkLengthSel.value);
+
+  const baseName  = document.getElementById('base-name').value.trim() || 'track';
+  const offset    = parseFloat(document.getElementById('start-offset').value) || 0;
+  const maxDur    = parseFloat(document.getElementById('max-duration').value) || 0;
+  const forceMono = document.getElementById('opt-mono').checked;
+  const normalize = document.getElementById('opt-normalize').checked;
+  const fade      = document.getElementById('opt-fade').checked;
+
+  const totalDur  = maxDur > 0 ? Math.min(sourceBuffer.duration - offset, maxDur) : sourceBuffer.duration - offset;
+  const numChunks = Math.ceil(totalDur / chunkSecs);
+  const sampleRate = sourceBuffer.sampleRate;
+  const numChannels = forceMono ? 1 : sourceBuffer.numberOfChannels;
+
+  generatedChunks = [];
+
+  for (let i = 0; i < numChunks; i++) {
+    const start = offset + i * chunkSecs;
+    const end   = Math.min(start + chunkSecs, offset + totalDur);
+    const len   = end - start;
+
+    progressLabel.textContent = `Processando chunk ${i + 1} de ${numChunks}…`;
+    progressBar.style.width = `${((i) / numChunks) * 100}%`;
+
+    // tiny delay to let UI repaint
+    await new Promise(r => setTimeout(r, 0));
+
+    const frameLen = Math.floor(len * sampleRate);
+    const offline  = new OfflineAudioContext(numChannels, frameLen, sampleRate);
+
+    const src = offline.createBufferSource();
+    // create a slice buffer
+    const sliceBuf = offline.createBuffer(numChannels, frameLen, sampleRate);
+    const srcFrameOffset = Math.floor(start * sampleRate);
+
+    for (let ch = 0; ch < numChannels; ch++) {
+      const srcCh = ch < sourceBuffer.numberOfChannels ? ch : 0;
+      const srcData = sourceBuffer.getChannelData(srcCh);
+      const dstData = sliceBuf.getChannelData(ch);
+      for (let s = 0; s < frameLen; s++) {
+        dstData[s] = srcData[srcFrameOffset + s] || 0;
+      }
+    }
+
+    src.buffer = sliceBuf;
+
+    // normalize
+    if (normalize) {
+      let peak = 0;
+      for (let ch = 0; ch < numChannels; ch++) {
+        const data = sliceBuf.getChannelData(ch);
+        for (let s = 0; s < data.length; s++) {
+          if (Math.abs(data[s]) > peak) peak = Math.abs(data[s]);
+        }
+      }
+      if (peak > 0 && peak < 1) {
+        const gain = offline.createGain();
+        gain.gain.value = 1 / peak;
+        src.connect(gain);
+        gain.connect(offline.destination);
+      } else {
+        src.connect(offline.destination);
+      }
+    } else {
+      src.connect(offline.destination);
+    }
+
+    src.start(0);
+    const rendered = await offline.startRendering();
+
+    // fade
+    if (fade) {
+      const fadeSamples = Math.floor(0.005 * sampleRate);
+      for (let ch = 0; ch < rendered.numberOfChannels; ch++) {
+        const data = rendered.getChannelData(ch);
+        for (let s = 0; s < fadeSamples && s < data.length; s++) {
+          data[s] *= s / fadeSamples;
+        }
+        for (let s = 0; s < fadeSamples && s < data.length; s++) {
+          data[data.length - 1 - s] *= s / fadeSamples;
+        }
+      }
+    }
+
+    const wav = bufferToWav(rendered);
+    const blob = new Blob([wav], { type: 'audio/wav' });
+    const url  = URL.createObjectURL(blob);
+    const padded = String(i + 1).padStart(3, '0');
+    const filename = `${baseName}_${padded}.wav`;
+
+    generatedChunks.push({ url, filename, start, end, blob });
+    appendChunkItem(i + 1, filename, start, end, url, filename);
+  }
+
+  progressBar.style.width = '100%';
+  progressLabel.textContent = `✓ ${numChunks} chunks gerados!`;
+  setTimeout(() => { progressWrap.style.display = 'none'; }, 2000);
+
+  chunkCount.textContent = `${numChunks} chunk${numChunks !== 1 ? 's' : ''}`;
+  btnDlAll.style.display = 'inline-flex';
+  btnProcess.disabled = false;
+}
+
+// ── Chunk List Item ──
+function appendChunkItem(num, name, start, end, url, filename) {
+  emptyState.style.display = 'none';
+  const item = document.createElement('div');
+  item.className = 'chunk-item';
+  item.style.animationDelay = `${(num - 1) * 30}ms`;
+  item.innerHTML = `
+    <span class="chunk-num">#${String(num).padStart(2,'0')}</span>
+    <div class="chunk-info">
+      <div class="chunk-name">${name}</div>
+      <div class="chunk-time">${formatTime(start)} → ${formatTime(end)}</div>
+    </div>
+    <button class="chunk-play" data-url="${url}" title="Ouvir">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+    </button>
+    <a class="chunk-dl" href="${url}" download="${filename}" title="Baixar">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    </a>
+  `;
+  const playBtn = item.querySelector('.chunk-play');
+  playBtn.addEventListener('click', () => togglePlay(playBtn, url));
+  chunksList.appendChild(item);
+}
+
+// ── Play / Stop ──
+function togglePlay(btn, url) {
+  if (currentAudio && currentPlayBtn === btn) {
+    currentAudio.pause();
+    currentAudio = null;
+    currentPlayBtn = null;
+    btn.classList.remove('playing');
+    btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>`;
+    return;
+  }
+  if (currentAudio) {
+    currentAudio.pause();
+    if (currentPlayBtn) {
+      currentPlayBtn.classList.remove('playing');
+      currentPlayBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>`;
+    }
+  }
+  const audio = new Audio(url);
+  currentAudio = audio;
+  currentPlayBtn = btn;
+  btn.classList.add('playing');
+  btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>`;
+  audio.play();
+  audio.addEventListener('ended', () => {
+    btn.classList.remove('playing');
+    btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>`;
+    currentAudio = null;
+    currentPlayBtn = null;
+  });
+}
+
+// ── Download All ──
+btnDlAll.addEventListener('click', async () => {
+  for (let i = 0; i < generatedChunks.length; i++) {
+    const { url, filename } = generatedChunks[i];
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    await new Promise(r => setTimeout(r, 200));
+  }
+});
+
+// ── Clear Chunks ──
+function clearChunks() {
+  generatedChunks.forEach(c => URL.revokeObjectURL(c.url));
+  generatedChunks = [];
+  chunksList.innerHTML = '';
+  chunksList.appendChild(emptyState);
+  emptyState.style.display = 'block';
+  chunkCount.textContent = '0 chunks';
+  btnDlAll.style.display = 'none';
+}
+
+// ── WAV Encoder ──
+function bufferToWav(buffer) {
+  const numCh = buffer.numberOfChannels;
+  const sr    = buffer.sampleRate;
+  const fmt   = 1; // PCM
+  const bps   = 16;
+  const numFrames = buffer.length;
+  const dataLen = numFrames * numCh * (bps / 8);
+
+  const ab  = new ArrayBuffer(44 + dataLen);
+  const dv  = new DataView(ab);
+  let pos = 0;
+  const w  = (v, n) => { dv.setUint8(pos++, v); };
+  const ws = s => { for (let i = 0; i < s.length; i++) w(s.charCodeAt(i)); };
+  const w16 = v => { dv.setInt16(pos, v, true); pos += 2; };
+  const w32 = v => { dv.setUint32(pos, v, true); pos += 4; };
+
+  ws('RIFF'); w32(36 + dataLen); ws('WAVE');
+  ws('fmt '); w32(16); w16(fmt); w16(numCh);
+  w32(sr); w32(sr * numCh * bps / 8); w16(numCh * bps / 8); w16(bps);
+  ws('data'); w32(dataLen);
+
+  const channels = [];
+  for (let c = 0; c < numCh; c++) channels.push(buffer.getChannelData(c));
+
+  for (let i = 0; i < numFrames; i++) {
+    for (let c = 0; c < numCh; c++) {
+      let s = Math.max(-1, Math.min(1, channels[c][i]));
+      s = s < 0 ? s * 0x8000 : s * 0x7FFF;
+      dv.setInt16(pos, s, true); pos += 2;
+    }
+  }
+  return ab;
+}
+
+// ── Helpers ──
+function formatTime(s) {
+  const m = Math.floor(s / 60);
+  const ss = (s % 60).toFixed(1).padStart(4, '0');
+  return `${String(m).padStart(2,'0')}:${ss}`;
+}
+</script>
+</body>
+</html>
